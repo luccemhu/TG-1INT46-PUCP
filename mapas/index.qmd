@@ -1,0 +1,436 @@
+---
+title: "Property crimes across Peru"
+subtitle: "Analysis of property crimes, specifically focusing on thefts and burglaries, across the 195 provinces of Peru for the years 2018 to 2023"
+theme:
+  light: flatly
+  dark: darkly
+format:
+  html:
+    code-fold: true
+    code-summary: "Code"
+    code-link: true
+    toc: true
+    toc-location: left
+    toc-title: " "
+    number-sections: true
+    self-contained: true
+editor: source
+fig-cap-location: margin
+author: 
+  name: "Joel Belsasar Ccallocunto \n **[luccemhu](https://github.com/luccemhu)**"
+  affiliation: "Pontifical Catholic University of Peru"
+  email: joel.hucall@gmail.com
+keywords: "Citizen Security, Urban crime, Victimization"
+date: today
+description: "This document provides a descriptive analysis of the citizen security module 600 for the years 2022 and 2023, including victimization rates, perception of insecurity, and home burglaries by department."
+title-block-banner: "#f0f3f5"
+title-block-banner-color: "black"
+css: style.css
+bibliography: references.bib
+csl: https://raw.githubusercontent.com/citation-style-language/styles/master/apa.csl
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+```
+
+
+
+
+```{r}
+#install.packages(c("tidyverse", "sf", "ggplot2", "dplyr"))
+library(tidyverse)
+library(sf)         # Para manipulación de datos espaciales
+library(ggplot2)    # Para visualización de datos
+library(dplyr)      # Para manipulación de datos
+library(magrittr)
+library(viridis)
+library(RColorBrewer)
+
+```
+
+
+```{r}
+data <- read.csv("full_data_2022.csv", stringsAsFactors = FALSE, fileEncoding = "latin1")
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```{r}
+
+# Importar shapefile de Lima
+lima_districts <- st_read("./data-mapas/Distrital INEI 2023 geogpsperu SuyoPomalia.shp")
+
+# Revisar las estructuras para verificar que las claves coincidan
+head(data)
+head(lima_districts)
+```
+
+
+```{r}
+# Filtrar datos para residentes en Lima
+data_lima <- data %>%
+  filter(DEPARTAMENTO == "LIMA")
+
+# Transformar la columna `discriminacion_en_peru` y `trabajo_semana_anterior` en valores numéricos o categóricos.
+data_lima <- data_lima %>%
+  mutate(discriminacion = as.character(discriminacion_en_peru),
+         trabajo = as.character(trabajo_semana_anterior))
+
+```
+
+
+```{r}
+# Filtrar distritos de Lima en el shapefile
+lima_districts <- lima_districts %>%
+  filter(PROVINCIA == "LIMA")
+
+```
+
+```{r}
+# Convertir data_lima a un dataframe estándar si es sf
+data_lima <- st_drop_geometry(data_lima)
+
+```
+
+```{r}
+# Agregar los datos al mapa
+lima_map_data <- lima_districts %>%
+  left_join(data_lima, by = c("DISTRITO" = "DISTRITO"))
+```
+
+
+```{r}
+lima_map_data <- lima_map_data %>%
+  mutate(
+    discriminacion = as.numeric(discriminacion),
+    trabajo = as.numeric(trabajo)
+  )
+
+```
+
+```{r}
+lima_map_data <- lima_map_data %>%
+  mutate(
+    discriminacion = ifelse(is.na(discriminacion), 0, discriminacion),
+    trabajo = ifelse(is.na(trabajo), 0, trabajo)
+  )
+
+```
+
+
+
+
+```{r}
+# Calcular porcentaje de discriminación por distrito
+porcentaje_discriminacion <- lima_map_data %>%
+  group_by(DISTRITO) %>%
+  summarise(
+    total_respuestas = n(),
+    si_discriminacion = sum(discriminacion == 1, na.rm = TRUE),
+    porcentaje_discriminacion = (si_discriminacion / total_respuestas) * 100
+  )
+
+# Calcular porcentaje de trabajo por distrito
+porcentaje_trabajo <- lima_map_data %>%
+  group_by(DISTRITO) %>%
+  summarise(
+    total_respuestas = n(),
+    si_trabajo = sum(trabajo == 1, na.rm = TRUE),
+    porcentaje_trabajo = (si_trabajo / total_respuestas) * 100
+  )
+
+
+```
+
+```{r}
+porcentaje_discriminacion <- st_drop_geometry(porcentaje_discriminacion)
+porcentaje_trabajo <- st_drop_geometry(porcentaje_trabajo)
+```
+
+
+
+```{r}
+# Unir porcentaje de discriminación
+lima_map_discriminacion <- lima_districts %>%
+  left_join(porcentaje_discriminacion, by = c("DISTRITO" = "DISTRITO"))
+
+# Unir porcentaje de trabajo
+lima_map_trabajo <- lima_districts %>%
+  left_join(porcentaje_trabajo, by = c("DISTRITO" = "DISTRITO"))
+
+```
+
+
+1. Mapa de Discriminación (Minimalista)
+
+```{r}
+library(cartography)
+
+# Crear una paleta de colores para discriminación
+cols_discriminacion1 <- carto.pal(pal1 = "green.pal", n1 = 2, pal2 = "red.pal", n2 = 4)
+
+p_discriminacion <- ggplot(data = lima_map_discriminacion) +
+  # Capa de los distritos con datos de discriminación
+  geom_sf(aes(fill = porcentaje_discriminacion), color = "grey50", size = 0.4) +
+  # Escala de colores perceptualmente uniforme
+  scale_fill_gradientn(
+    colors = cols_discriminacion,
+    name = "Discriminación (%)",
+    limits = c(0, 100),
+    breaks = seq(0, 100, by = 20),
+    labels = function(x) paste0(x, "%")
+  ) +
+  # Títulos y etiquetas
+  labs(
+    title = "Porcentaje de discriminación por distrito en Lima Metropolitana",
+    subtitle = "Proporción de encuestados que reportaron discriminación",
+    caption = "Fuente: Elaboración propia con datos de ENPOVE 2022"
+  ) +
+  # Tema limpio y profesional
+  theme_void(base_size = 16) +  # Elimina cuadrículas y coordenadas
+  theme(
+    plot.title = element_text(face = "bold", size = 18, hjust = 0.5),
+    plot.subtitle = element_text(size = 14, hjust = 0.5),
+    plot.caption = element_text(size = 10, color = "grey40", hjust = 1),
+    legend.position = "bottom",
+    legend.title = element_text(size = 12, face = "bold"),
+    legend.text = element_text(size = 7.5)
+  )
+
+```
+
+```{r}
+# Guardar el mapa ya generado en alta calidad
+ggsave(
+  filename = "alta_calidad_mapa_discriminacion.png",  # Nombre del archivo
+  plot = p_discriminacion1,                           # Objeto del gráfico ya generado
+  dpi = 300,                                         # Resolución en puntos por pulgada
+  width = 10,                                        # Ancho en pulgadas
+  height = 8,                                        # Alto en pulgadas
+  units = "in",                                      # Unidades en pulgadas
+  device = "png"                                     # Formato del archivo
+)
+
+```
+
+
+
+```{r}
+# Crear una paleta de colores para trabajo
+cols_trabajo <- carto.pal(pal1 = "blue.pal", n1 = 3, pal2 = "orange.pal", n2 = 3)
+
+p_trabajo1 <- ggplot(data = lima_map_trabajo) +
+  # Capa de los distritos con datos de trabajo
+  geom_sf(aes(fill = porcentaje_trabajo), color = "grey50", size = 0.4) +
+  # Escala de colores perceptualmente uniforme
+  scale_fill_gradientn(
+    colors = cols_trabajo,
+    name = "Trabajo (%)",
+    limits = c(0, 100),
+    breaks = seq(0, 100, by = 20),
+    labels = function(x) paste0(x, "%")
+  ) +
+  # Títulos y etiquetas
+  labs(
+    title = "Porcentaje de trabajo por distrito en Lima",
+    subtitle = "Proporción de encuestados que trabajaron la semana anterior",
+    caption = "Fuente: Elaboración propia con datos de ENPOVE 2022"
+  ) +
+  # Tema limpio y profesional
+  theme_void(base_size = 16) +  # Elimina cuadrículas y coordenadas
+  theme(
+    plot.title = element_text(face = "bold", size = 18, hjust = 0.5),
+    plot.subtitle = element_text(size = 14, hjust = 0.5),
+    plot.caption = element_text(size = 10, color = "grey40", hjust = 1),
+    legend.position = "bottom",
+    legend.title = element_text(size = 12, face = "bold"),
+    legend.text = element_text(size = 7.5)
+  )
+
+```
+
+
+```{r}
+# Guardar el mapa ya generado en alta calidad
+ggsave(
+  filename = "alta_calidad_mapa_trabajo.png",  # Nombre del archivo
+  plot = p_trabajo1,                           # Objeto del gráfico ya generado
+  dpi = 300,                                         # Resolución en puntos por pulgada
+  width = 10,                                        # Ancho en pulgadas
+  height = 8,                                        # Alto en pulgadas
+  units = "in",                                      # Unidades en pulgadas
+  device = "png"                                     # Formato del archivo
+)
+
+```
+
+
+```{r}
+for (distrito in unique(lima_districts$DISTRITO)) {
+  # Filtrar datos para el distrito
+  distrito_data_discriminacion <- lima_map_discriminacion %>%
+    filter(DISTRITO == distrito)
+  
+  distrito_data_trabajo <- lima_map_trabajo %>%
+    filter(DISTRITO == distrito)
+  
+  # Mapa de discriminación por distrito
+  p_discriminacion <- ggplot() +
+    geom_sf(data = distrito_data_discriminacion, aes(fill = porcentaje_discriminacion), color = "grey50", size = 0.4) +
+    scale_fill_gradientn(colors = cols_discriminacion, name = "Discriminación (%)") +
+    labs(
+      title = paste("Discriminación en el distrito:", distrito),
+      subtitle = "Proporción de encuestados que reportaron discriminación",
+      caption = "Fuente: Elaboración propia con datos de ENPOVE 2022"
+    ) +
+    theme_void(base_size = 14) +
+    theme(
+      plot.title = element_text(face = "bold", size = 16, hjust = 0.5),
+      plot.subtitle = element_text(size = 12, hjust = 0.5),
+      legend.position = "bottom"
+    )
+  
+  ggsave(paste0("discriminacion_", distrito, ".png"), p_discriminacion, width = 8, height = 6)
+  
+  # Mapa de trabajo por distrito
+  p_trabajo <- ggplot() +
+    geom_sf(data = distrito_data_trabajo, aes(fill = porcentaje_trabajo), color = "grey50", size = 0.4) +
+    scale_fill_gradientn(colors = cols_trabajo, name = "Trabajo (%)") +
+    labs(
+      title = paste("Trabajo en el distrito:", distrito),
+      subtitle = "Proporción de encuestados que trabajaron la semana anterior",
+      caption = "Fuente: Elaboración propia con datos de ENPOVE 2022"
+    ) +
+    theme_void(base_size = 14) +
+    theme(
+      plot.title = element_text(face = "bold", size = 16, hjust = 0.5),
+      plot.subtitle = element_text(size = 12, hjust = 0.5),
+      legend.position = "bottom"
+    )
+  
+  ggsave(paste0("trabajo_", distrito, ".png"), p_trabajo, width = 8, height = 6)
+}
+
+```
+
+
+
+
+
+
+
+
+
+
+
+Código en R para Generar el Gráfico TRABAJO`
+
+```{r}
+# Cargar las librerías necesarias
+library(tidyverse)
+
+# Leer los datos
+data <- read.csv("full_data_2022.csv", stringsAsFactors = FALSE, fileEncoding = "latin1")
+
+```
+
+
+```{r}
+
+# Preparar los datos para "trabajo"
+data <- data %>%
+  mutate(
+    trabajo = as.factor(trabajo_semana_anterior),  # Convertir la columna a factor
+    sexo = ifelse(sexo == 1, "Hombre", "Mujer")   # Reemplazar valores con etiquetas
+  ) %>%
+  filter(!is.na(trabajo))  # Eliminar filas con NA en "trabajo"
+
+# Ajustar niveles para la variable "trabajo"
+data$trabajo <- factor(data$trabajo, levels = c(1, 2), labels = c("Trabajó", "No trabajó"))
+
+# Resumir los datos por género y estado de trabajo
+trabajo_summary <- data %>%
+  group_by(sexo, trabajo) %>%
+  summarise(conteo = n(), .groups = "drop") %>%
+  mutate(
+    porcentaje = conteo / sum(conteo) * 100  # Calcular porcentaje por grupo
+  )
+
+# Calcular totales para trabajo (agregar categoría "Total")
+totales_trabajo <- data %>%
+  group_by(trabajo) %>%
+  summarise(
+    conteo = n(),
+    sexo = "Total",  # Etiqueta "Total"
+    .groups = "drop"
+  ) %>%
+  mutate(
+    porcentaje = conteo / sum(conteo) * 100  # Calcular porcentaje total
+  )
+
+# Unir los totales al resumen
+trabajo_summary_total <- trabajo_summary %>%
+  bind_rows(totales_trabajo)
+
+# Crear el gráfico con barras separadas (colores predeterminados de R)
+p_trabajo_separado <- ggplot(trabajo_summary_total, aes(x = sexo, y = porcentaje, fill = trabajo)) +
+  geom_bar(stat = "identity", position = position_dodge(width = 0.8), color = "black", width = 0.7) +  # Barras separadas
+  geom_text(
+    aes(label = sprintf("%.1f%%", porcentaje)),
+    position = position_dodge(width = 0.8),  # Etiquetas encima de las barras separadas
+    vjust = -0.5, size = 4, fontface = "bold"
+  ) +
+  labs(
+    title = "Estado de actividad laboral de la población venezolana en el Perú (2022)",
+    subtitle = "Distribución por género y total según estado de actividad laboral",
+    x = "Categoría",
+    y = "Porcentaje",
+    caption = "Fuente: Elaboración propia con datos de ENPOVE 2022"
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(
+    plot.title = element_text(face = "bold", size = 16, hjust = 0.5),
+    plot.subtitle = element_text(size = 12, hjust = 0.5),
+    plot.caption = element_text(size = 10, color = "grey40", hjust = 1),
+    legend.position = "bottom",
+    legend.title = element_text(size = 12, face = "bold"),
+    legend.text = element_text(size = 10),
+    axis.text.x = element_text(size = 12),
+    axis.text.y = element_text(size = 10),
+    axis.title.x = element_text(size = 12, face = "bold"),
+    axis.title.y = element_text(size = 12, face = "bold")
+  )
+
+# Mostrar el gráfico
+print(p_trabajo_separado)
+
+
+
+```
+
+```{r}
+# Guardar el gráfico en alta calidad
+ggsave(
+  filename = "trabajo_estado_barras_separadas_colores.png",  # Nombre del archivo
+  plot = p_trabajo_separado,                                 # Objeto del gráfico
+  dpi = 300,                                                 # Resolución en puntos por pulgada
+  width = 10,                                                # Ancho en pulgadas
+  height = 8,                                                # Alto en pulgadas
+  units = "in",                                              # Unidades en pulgadas
+  device = "png"                                             # Formato del archivo
+)
+
+```
+
+
