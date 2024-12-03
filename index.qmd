@@ -1,0 +1,899 @@
+---
+title: "Factores asociados al estado de actividad laboral en refugiados y migrantes venezolanos en el Perú: Un enfoque predictivo utilizando Machine Learning"
+format: 
+  dashboard:
+    theme: [litera, custom.scss]
+    orientation: columns
+logo: logo.png
+execute:
+  echo: false
+---
+
+# Análisis principal
+
+## Column {.tabset}
+
+### Introducción y estado de actividad laboral
+
+#### Column {.tabset}
+
+##### Introducción
+
+###### Column {width="10%"}
+
+::: {.valuebox style="background-color: #f5f5f5; color: #004d61; border-left: 4px solid #009688; padding: 1em; margin-bottom: 1em;"}
+**1 078 854**  
+**Personas venezolanas en el Perú en 2022.**
+:::
+
+::: {.valuebox style="background-color: #f5f5f5; color: #004d61; border-left: 4px solid #009688; padding: 1em; margin-bottom: 1em;"}
+**41%**  
+**Incremento en la población migrante venezolana desde 2018.**
+:::
+
+::: {.valuebox style="background-color: #f5f5f5; color: #004d61; border-left: 4px solid #009688; padding: 1em; margin-bottom: 1em;"}
+**82.5%**  
+**Migrantes concentrados en Lima y Callao.**
+:::
+
+###### Column {width="75%"}
+
+::: {.valuebox style="background-color: #ffffff; color: #222222; padding: 1em; border-radius: 4px; box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);"}
+
+![Gráfico Nº1: Concentración de refugiados y migrantes venezolanos en ciudades del Perú (2018-2022)](./imagenes/1-Imagen1.png){fig-align="center" width="100%"}
+
+:::
+
+###### Column {width="25%"}
+
+::: {.valuebox style="background-color: #f5f5f5; color: #004d61; padding: 1em; border-left: 4px solid #009688;"}
+
+El Perú albergó a **1,078,854 personas venezolanas** en 2022, un incremento del **41%** desde 2018.  
+Las ciudades con mayor concentración fueron:
+
+- **Lima y Callao**: 82.5%  
+- **Trujillo**: 5.1%  
+- **Arequipa**: 3.3%  
+- **Piura**: 2.2%  
+
+Este gráfico destaca el impacto de la migración venezolana en las principales áreas urbanas, con Lima y Callao como los destinos predominantes.
+
+:::
+
+##### Estado de actividad laboral
+
+###### Column {width="75%"}
+
+::: {.valuebox style="background-color: #ffffff; color: #222222; padding: 1em; border-radius: 4px; box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);"}
+
+![Gráfico Nº2. Población refugiada y migrante de Venezuela en el Perú, según estado de actividad laboral en el 2022](./imagenes/2-Imagen2.png){fig-align="center" width="100%"}
+
+:::
+
+###### Column {width="25%"}
+
+::: {.valuebox style="background-color: #f5f5f5; color: #004d61; padding: 1em; border-left: 4px solid #009688;"}
+
+El **58.5%** de la población refugiada y migrante venezolana en el Perú participó en actividades laborales durante el período evaluado, destacando su integración parcial al mercado laboral peruano.  
+El 41.5% de los migrantes venezolanos en Perú no encontró trabajo o no participó en actividades laborales durante el período evaluado.
+
+:::
+
+
+
+### Investigación y revisión de literatura
+
+#### Column {.tabset}
+
+##### Preguntas de investigación
+
+::: {.valuebox style="background-color: #e8f5e9; color: #1b5e20; border-left: 4px solid #43a047; padding: 1em; margin-bottom: 1em;"}
+
+1.**¿Cuál es el modelo de Machine Learning que mejor predice el estado de actividad laboral en refugiados y migrantes venezolanos en el Perú en 2022?**
+
+2.**¿Cuáles son las características más importantes asociadas al estado de actividad laboral en refugiados y migrantes venezolanos en el Perú en 2022?**
+
+:::
+
+##### Revisión de la literatura
+
+::: {.valuebox style="background-color: #e8f5e9; color: #1b5e20; border-left: 4px solid #43a047; padding: 1em; margin-bottom: 1em;"}
+
+1. **Estudios cualitativos y econométricos** han identificado barreras como:
+
+   - Redes de contacto limitadas.  
+   - Obstáculos para la validación de títulos (Távarez y Alcázar, 2023).  
+
+2. **Barreras para la integración en LATAM y Perú**:  
+
+   - Representaciones negativas en medios (ACNUR, 2023).  
+   - Obstáculos legales para la integración económica (Alcázar y Távarez, 2023).  
+   - Falta de acceso a empleo y condiciones de vida adecuadas (INEI, 2023).  
+
+3. **Predicción de abandono laboral con Machine Learning**:  
+
+   - Métodos basados en **árboles de decisión** han demostrado ser los más efectivos (Jiménez, 2023).
+
+:::
+
+##### Relevancia de la investigación
+
+::: {.valuebox style="background-color: #e8f5e9; color: #1b5e20; border-left: 4px solid #43a047; padding: 1em; margin-bottom: 1em;"}
+
+1. **Teórico I**: 
+
+Aplicación de Machine Learning para identificar la situación laboral.  
+
+2. **Teórico II**: 
+
+Análisis profundo de factores asociados al estado de actividad laboral, evaluando **806 variables** (individuo, infraestructura, distrito).  
+
+**Impacto práctico**:  
+- Focalización en políticas públicas.  
+- Programas específicos para necesidades migrantes.  
+- Mejora de la inclusión laboral y económica.
+
+:::
+
+
+
+
+```{r, include=FALSE}
+# Cargar bibliotecas necesarias
+library(tidyverse)
+library(sf)
+library(ggplot2)
+
+# Leer datos y shapefile
+data <- read.csv("full_data_2022.csv", stringsAsFactors = FALSE, fileEncoding = "latin1")
+lima_districts <- st_read("./mapas/data-mapas/Distrital INEI 2023 geogpsperu SuyoPomalia.shp")
+
+# Filtrar y procesar datos
+data_lima <- data %>%
+  filter(DEPARTAMENTO == "LIMA") %>%
+  mutate(trabajo = as.numeric(as.character(trabajo_semana_anterior)))
+
+porcentaje_trabajo <- data_lima %>%
+  group_by(DISTRITO) %>%
+  summarise(
+    total_respuestas = n(),
+    si_trabajo = sum(trabajo == 1, na.rm = TRUE),
+    porcentaje_trabajo = (si_trabajo / total_respuestas) * 100
+  )
+
+lima_districts <- lima_districts %>%
+  filter(PROVINCIA == "LIMA") %>%
+  left_join(porcentaje_trabajo, by = c("DISTRITO" = "DISTRITO")) %>%
+  mutate(porcentaje_trabajo = ifelse(is.na(porcentaje_trabajo), 0, porcentaje_trabajo))
+```
+
+
+
+
+# Mapas
+
+#### Column {.tabset}
+
+##### Mapa General de Trabajo
+
+###### Column {width="100%"}
+
+::: {.valuebox style="background-color: #ffffff; color: #222222; padding: 1em; border-radius: 4px; box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);"}
+
+```{r mapaGeneralTrabajo, echo=FALSE}
+
+
+# Mejorar el mapa para artículos científicos
+ggplot(data = lima_districts) +
+  geom_sf(aes(fill = porcentaje_trabajo), color = "black", size = 0.3) + # Líneas negras más delgadas
+  scale_fill_gradientn(
+    colors = c("#d9f0a3", "#addd8e", "#78c679", "#41ab5d", "#238443", "#005a32"), # Escala de verdes profesionales
+    name = "Trabajo (%)",
+    limits = c(0, 100),
+    breaks = seq(0, 100, by = 20), # Divisiones claras
+    labels = function(x) paste0(x, "%") # Etiquetas con porcentaje
+  ) +
+  labs(
+    title = "Porcentaje de trabajo por distrito en Lima",
+    subtitle = "Proporción de encuestados que trabajaron la semana anterior",
+    caption = "Fuente: Elaboración propia con datos de ENPOVE 2022"
+  ) +
+  theme_minimal(base_size = 14) + # Tema limpio y adecuado para publicaciones
+  theme(
+    plot.title = element_text(face = "bold", size = 16, hjust = 0.5), # Títulos más destacados
+    plot.subtitle = element_text(size = 12, hjust = 0.5, color = "grey20"), # Subtítulos claros
+    plot.caption = element_text(size = 10, color = "grey40", hjust = 1), # Fuente y contexto
+    legend.position = "bottom", # Leyenda en la parte inferior
+    legend.title = element_text(size = 12, face = "bold"), # Título de la leyenda destacado
+    legend.text = element_text(size = 7.5), # Texto de leyenda legible
+    axis.text = element_blank(), # Eliminar texto de ejes
+    axis.title = element_blank(), # Eliminar títulos de ejes
+    panel.grid = element_blank(), # Quitar cuadrículas para limpieza
+    panel.background = element_rect(fill = "white", color = NA) # Fondo blanco limpio
+  )
+```
+
+:::
+
+##### Mapas distritos de Lima Metropolitana
+
+###### Column {.tabset}
+
+```{r mapasPorDistrito, echo=FALSE}
+
+library(dplyr)
+
+# Loop para generar mapas por distrito con diseño profesional
+for (distrito in unique(lima_districts$DISTRITO)) {
+  distrito_data <- lima_districts %>%
+    filter(DISTRITO == distrito)
+  
+  # Generar un mapa profesional por cada distrito
+  p <- ggplot(data = distrito_data) +
+    geom_sf(aes(fill = porcentaje_trabajo), color = "black", size = 0.3) + # Borde negro para definición
+    scale_fill_gradientn(
+      colors = c("#d9f0a3", "#addd8e", "#78c679", "#41ab5d", "#238443", "#005a32"), # Escala perceptible
+      name = "Porcentaje de trabajo (%)",
+      limits = c(0, 100),
+      breaks = seq(0, 100, by = 20), # Límites claros y proporcionales
+      labels = function(x) paste0(x, "%")
+    ) +
+    labs(
+      title = paste("Trabajo en el distrito:", distrito),
+      subtitle = "Proporción de encuestados que trabajaron la semana anterior",
+      caption = "Fuente: Elaboración propia con datos de ENPOVE 2022"
+    ) +
+    theme_minimal(base_size = 14) + # Tema más adecuado para publicaciones científicas
+    theme(
+      plot.title = element_text(face = "bold", size = 16, hjust = 0.5), # Título centrado y prominente
+      plot.subtitle = element_text(size = 12, hjust = 0.5, color = "grey20"), # Subtítulo legible
+      plot.caption = element_text(size = 10, color = "grey40", hjust = 1), # Fuente y contexto
+      axis.text = element_blank(), # Quitar texto de ejes
+      axis.title = element_blank(), # Quitar títulos de ejes
+      panel.grid = element_blank(), # Eliminar cuadrícula
+      panel.background = element_rect(fill = "white", color = NA), # Fondo blanco para claridad
+      legend.position = "bottom", # Leyenda en la parte inferior
+      legend.title = element_text(size = 12, face = "bold"), # Título de la leyenda destacado
+      legend.text = element_text(size = 7.5) # Texto de leyenda legible
+    )
+  
+  # Renderizar cada mapa en su propia subpestaña
+  cat(paste0(" ", distrito, "\n"))
+  print(p)
+}
+```
+
+
+##### Clasificación del trabajo
+
+###### Column {.tabset}
+
+
+
+```{r, echo=FALSE, echo=FALSE}
+library(tidyverse)
+library(sf)
+library(ggplot2)
+library(classInt)
+# Generar los puntos de corte únicos para los cuantiles
+breaks <- unique(classIntervals(lima_districts$porcentaje_trabajo, n = 5, style = "quantile")$brks)
+
+# Verificar el número de intervalos y etiquetas
+num_intervals <- length(breaks) - 1  # Número de intervalos es siempre número de cortes menos 1
+
+# Asegúrate de que las etiquetas coincidan con el número de intervalos
+labels <- c("muy bajo", "bajo", "medio", "alto", "muy alto")[1:num_intervals]
+
+# Clasificar los distritos según porcentaje de trabajo
+lima_districts$trabajo_cat <- cut(
+  lima_districts$porcentaje_trabajo,
+  breaks = breaks,
+  include.lowest = TRUE,
+  labels = labels
+)
+
+```
+
+#### Distritos con trabajo muy bajo
+
+
+```{r, echo=FALSE}
+# Generar el mapa para distritos con trabajo muy bajo
+ggplot() +
+  geom_sf(
+    data = lima_districts %>% filter(trabajo_cat != "muy bajo"),
+    aes(geometry = geometry),
+    fill = "grey90",
+    color = "white"
+  ) +
+  geom_sf(
+    data = lima_districts %>% filter(trabajo_cat == "muy bajo"),
+    aes(fill = trabajo_cat, geometry = geometry),
+    color = "black"
+  ) +
+  scale_fill_manual(values = c("muy bajo" = "red")) +
+  labs(
+    title = "Distritos con trabajo muy bajo",
+    subtitle = "Porcentaje de personas que trabajaron la semana anterior",
+    caption = "Fuente: ENPOVE 2022"
+  ) +
+  theme_void()
+```
+
+#### Distritos con trabajo muy alto
+
+```{r, echo=FALSE}
+# Generar el mapa para distritos con trabajo muy alto
+ggplot() +
+  geom_sf(
+    data = lima_districts %>% filter(trabajo_cat != "muy alto"),
+    aes(geometry = geometry),
+    fill = "grey90",
+    color = "white"
+  ) +
+  geom_sf(
+    data = lima_districts %>% filter(trabajo_cat == "muy alto"),
+    aes(fill = trabajo_cat, geometry = geometry),
+    color = "black"
+  ) +
+  scale_fill_manual(values = c("muy alto" = "blue")) +
+  labs(
+    title = "Distritos con trabajo muy alto",
+    subtitle = "Porcentaje de personas que trabajaron la semana anterior",
+    caption = "Fuente: ENPOVE 2022"
+  ) +
+  theme_void()
+```
+
+
+
+
+# Spatial II
+
+#### Column {.tabset}
+
+##### Mapa General de Trabajo
+
+###### Column {width="100%"}
+
+::: {.valuebox style="background-color: #ffffff; color: #222222; padding: 1em; border-radius: 4px; box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);"}
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+# Cargar bibliotecas necesarias
+library(tidyverse)
+library(sf)
+library(spdep)
+library(ggplot2)
+
+# # Leer datos y shapefile
+# data <- read.csv("full_data_2022.csv", stringsAsFactors = FALSE, fileEncoding = "latin1")
+# lima_districts <- st_read("./mapas/data-mapas/Distrital INEI 2023 geogpsperu SuyoPomalia.shp")
+# 
+# # Procesar datos
+# data_lima <- data %>%
+#   filter(DEPARTAMENTO == "LIMA") %>%
+#   mutate(trabajo = as.numeric(as.character(trabajo_semana_anterior)))
+# 
+# porcentaje_trabajo <- data_lima %>%
+#   group_by(DISTRITO) %>%
+#   summarise(
+#     total_respuestas = n(),
+#     si_trabajo = sum(trabajo == 1, na.rm = TRUE),
+#     porcentaje_trabajo = (si_trabajo / total_respuestas) * 100
+#   )
+# 
+# lima_districts <- lima_districts %>%
+#   filter(PROVINCIA == "LIMA") %>%
+#   left_join(porcentaje_trabajo, by = c("DISTRITO" = "DISTRITO")) %>%
+#   mutate(porcentaje_trabajo = ifelse(is.na(porcentaje_trabajo), 0, porcentaje_trabajo))
+
+# Calcular matriz de pesos espaciales (Reina)
+w <- poly2nb(lima_districts, queen = TRUE)
+w_list <- nb2listw(w, style = "W", zero.policy = TRUE)
+
+# Calcular Moran's I Global
+moran_global <- moran.test(lima_districts$porcentaje_trabajo, listw = w_list, zero.policy = TRUE)
+
+# Imprimir resultados de Moran's I Global
+moran_global
+
+# Calcular Moran's I Local (LISA)
+local_moran <- localmoran(lima_districts$porcentaje_trabajo, listw = w_list, zero.policy = TRUE)
+
+# Agregar resultados al shapefile
+lima_districts <- lima_districts %>%
+  mutate(
+    LISA_I = local_moran[, 1],
+    LISA_p = local_moran[, 5],
+    LISA_cluster = case_when(
+      LISA_I > 0 & LISA_p <= 0.05 ~ "Cluster Alto-Alto",
+      LISA_I < 0 & LISA_p <= 0.05 ~ "Cluster Bajo-Bajo",
+      LISA_I > 0 & LISA_p > 0.05 ~ "Sin Significancia",
+      TRUE ~ "Sin Cluster"
+    )
+  )
+
+# Mapa de Moran's I Local
+ggplot(data = lima_districts) +
+  geom_sf(aes(fill = LISA_cluster), color = "white") +
+  scale_fill_manual(
+    values = c(
+      "Cluster Alto-Alto" = "red",
+      "Cluster Bajo-Bajo" = "blue",
+      "Sin Cluster" = "grey",
+      "Sin Significancia" = "yellow"
+    ),
+    na.value = "white"
+  ) +
+  labs(
+    title = "Clusters espaciales: proporción de personas que trabajaron",
+    subtitle = "Análisis local de Moran's I (LISA)",
+    fill = "Clusters LISA"
+  ) +
+  theme_void()
+```
+
+:::
+
+
+
+
+# Metodología
+
+## Column {.tabset}
+
+### V. METODOLOGÍA (1): BASE DE DATOS
+
+::: {.valuebox color="white"}
+#### Metodología de Procesamiento
+
+1. **Metodología:**
+   - **Filtro de missings**: Variables con más del 10% de valores faltantes fueron eliminadas.
+
+2. **Resumen de la Base de Datos**:
+   
+   | Año  | Fuentes                | Número de Observaciones                                    | Número de Variables |
+   |------|-------------------------|-----------------------------------------------------------|---------------------|
+   | 2022 | ENPOVE, RENAMU, SIAF   | 10,227 refugiados o migrantes venezolanos en Perú (90%) | 806                 |
+
+3. **Filtros Adicionales**:
+   - Filtro de variabilidad: Eliminación de variables constantes.
+   - Imputación con **media** y **moda**.
+   - Tratamiento de **outliers**.
+
+4. **Metodología Avanzada**:
+   - Métodos de limpieza y **fuzzy merge** aplicados para garantizar calidad en los datos.
+:::
+
+
+
+### V. METODOLOGÍA (2): VARIABLE DEPENDIENTE
+
+::: {.valuebox color="white"}
+#### Definición de la Variable Dependiente
+
+- **Pregunta:** La semana pasada del ___ al ___, ¿tuvo algún trabajo (sin contar los quehaceres del hogar)?
+  - Opciones:
+    1. **Sí**
+    2. **No**
+
+#### Estrategias de Resampling
+
+- **Métodos Aplicados:**
+  1. **SMOTE TOMEK**: Combina oversampling y undersampling para balancear clases.
+  2. **SMOTE**: Sobremuestreo de la clase minoritaria.
+  3. **Naive Random Sampling (NRS)**: Asignación balanceada mediante muestreo aleatorio.
+:::
+
+
+
+### V. METODOLOGÍA (3): MODELOS
+
+::: {.valuebox color="white"}
+#### Resumen de Métodos de Muestreo y Resultados
+
+| Método           | Observaciones | Variables | Nro. No | Nro. Sí |
+|-------------------|---------------|-----------|---------|---------|
+| **Original**      | 7,670         | 819       | 3,144   | 4,526   |
+| **SMOTE**         | 9,052         | 819       | 4,526   | 4,526   |
+| **SMOTE Tomek**   | 8,766         | 819       | 4,383   | 4,383   |
+| **NRS**           | 9,052         | 819       | 4,526   | 4,526   |
+
+#### Implementación
+
+Estos métodos aseguran que la distribución de la variable dependiente esté balanceada, mejorando la capacidad predictiva del modelo.
+
+#### Modelos Utilizados
+
+- **Regresión Logística**
+- **Lasso**
+- **Ridge**
+- **Elastic Net**
+- **Random Forest**
+- **Boosted Trees**
+:::
+
+# Resultados preliminares
+
+## Column {.tabset}
+
+### Variables más relevantes
+
+#### Column {width="30%"}
+
+::: {.valuebox style="background-color: #f5f5f5; color: #004d61; border-left: 4px solid #009688; padding: 1em; margin-bottom: 1em;"}
+#### Variables que más aportan en el modelo de predicción Boosted Trees
+
+| **Variable**               | **Descripción**                                                             |
+|----------------------------|-----------------------------------------------------------------------------|
+| **Sexo**                   | Sexo                                                                        |
+| **Edad_años**              | Edad                                                                        |
+| **P48B_2**                 | Inspecciones técnicas de barreras físicas                                   |
+| **C96_3_1**                | Ingresos totales: transferencias, canon y sobrecanon                        |
+| **P19_4_VM**               | Número de mujeres empleadas en la municipalidad bajo CAS                    |
+| **Trabajo_en_venezuela**   | Trabajó en Venezuela                                                        |
+| **P19_4_VH**               | Número de hombres empleados en la municipalidad bajo CAS                    |
+| **Necesidad_no_cubierta_alimentos** | Necesidad alimentaria no cubierta                                   |
+| **C96_1_1_2**              | Ingresos corrientes por alcabala                                            |
+| **Sentir_extraño_peru**    | Se siente extraño en Perú                                                   |
+:::
+
+
+
+### Importancia de las variables
+
+#### Column {width="35%"}
+
+::: {.valuebox style="background-color: #ffffff; color: #222222; padding: 1.5em; border-radius: 8px; border-left: 4px solid #009688; margin-bottom: 1em;"}
+#### Importancia de las variables
+
+1. **Variables individuales**:
+   - Sexo, edad y experiencia laboral previa.
+
+2. **Variables municipales**:
+   - Capacidad de la municipalidad: empleados, ingresos y fiscalización.
+
+Estas variables reflejan los factores críticos que determinan el estado de actividad laboral de los refugiados y migrantes venezolanos.
+:::
+
+
+
+
+
+
+### Correlación
+
+#### Variables II
+
+```{r, echo=FALSE}
+# Cargar bibliotecas necesarias
+library(tidyverse)
+library(corrplot)
+
+# Selección de variables relevantes para el análisis
+variables_seleccionadas <- data_lima %>%
+  select(trabajo, sexo, edad_años, P48B_2, C96_3_1, P19_4_VM, 
+         trabajo_en_venezuela, P19_4_VH, necesidad_no_cubierta_alimentos, 
+         C96_1_1_2, sentir_extraño_peru)
+
+# Calcular la matriz de correlación para las variables seleccionadas
+correlaciones <- cor(variables_seleccionadas, use = "complete.obs")
+
+# Identificar las principales correlaciones con "trabajo"
+principales_correlaciones <- as.data.frame(correlaciones) %>%
+  select(trabajo) %>%
+  rownames_to_column(var = "variable") %>%
+  arrange(desc(abs(trabajo))) %>%
+  filter(variable != "trabajo")
+
+# Mostrar las principales correlaciones en la consola
+print(principales_correlaciones)
+
+# Crear una visualización de la matriz de correlación con etiquetas ajustadas
+corrplot(
+  correlaciones, 
+  method = "circle",  # Representación con círculos
+  type = "lower",     # Solo mostrar la mitad inferior de la matriz
+  order = "hclust",   # Ordenar por jerarquía de similitud
+  tl.col = "black",   # Color de las etiquetas
+  tl.srt = 45,        # Rotar etiquetas a 45 grados
+  addCoef.col = "black",  # Mostrar coeficientes numéricos
+  number.cex = 0.7,       # Tamaño del texto de los coeficientes
+  tl.cex = 0.8,           # Tamaño del texto de las etiquetas
+  title = "Matriz de Correlación Ajustada",  # Título del gráfico
+  mar = c(0, 0, 2, 0)     # Ajuste de márgenes
+)
+
+```
+
+
+
+### Distribucion necesidad alimentaria no cubierta por distrito
+
+```{r, echo=FALSE}
+# Cargar bibliotecas necesarias
+library(tidyverse)
+library(sf)
+library(ggplot2)
+library(leaflet)
+# 
+# # Leer datos y shapefile
+# data <- read.csv("full_data_2022.csv", stringsAsFactors = FALSE, fileEncoding = "latin1")
+# lima_districts <- st_read("./mapas/data-mapas/Distrital INEI 2023 geogpsperu SuyoPomalia.shp")
+# 
+# # Filtrar datos para Lima
+# data_lima <- data %>%
+#   filter(DEPARTAMENTO == "LIMA") %>%
+#   mutate(trabajo = as.numeric(as.character(trabajo_semana_anterior)))
+# 
+# # Análisis del porcentaje de personas que trabajan en Lima por distrito
+# porcentaje_trabajo <- data_lima %>%
+#   group_by(DISTRITO) %>%
+#   summarise(
+#     total_respuestas = n(),
+#     si_trabajo = sum(trabajo == 1, na.rm = TRUE),
+#     porcentaje_trabajo = (si_trabajo / total_respuestas) * 100
+#   )
+
+# # Unir los datos con los shapefiles
+# lima_districts <- lima_districts %>%
+#   filter(PROVINCIA == "LIMA") %>%
+#   left_join(porcentaje_trabajo, by = c("DISTRITO" = "DISTRITO")) %>%
+#   mutate(porcentaje_trabajo = ifelse(is.na(porcentaje_trabajo), 0, porcentaje_trabajo))
+```
+
+
+```{r }
+# Análisis de la necesidad alimentaria no cubierta por distrito
+necesidad_alimentos <- data_lima %>%
+  group_by(DISTRITO) %>%
+  summarise(
+    total_respuestas = n(),
+    necesidad_no_cubierta = sum(necesidad_no_cubierta_alimentos == 1, na.rm = TRUE),
+    porcentaje_necesidad = (necesidad_no_cubierta / total_respuestas) * 100
+  )
+
+# Unir con los shapefiles
+lima_districts <- lima_districts %>%
+  left_join(necesidad_alimentos, by = c("DISTRITO" = "DISTRITO")) %>%
+  mutate(porcentaje_necesidad = ifelse(is.na(porcentaje_necesidad), 0, porcentaje_necesidad))
+
+# Mapa de la necesidad alimentaria no cubierta
+leaflet(lima_districts) %>%
+  addTiles() %>%
+  addPolygons(
+    fillColor = ~colorNumeric("YlGnBu", porcentaje_necesidad)(porcentaje_necesidad),
+    color = "black",
+    weight = 1,
+    opacity = 1,
+    fillOpacity = 0.7,
+    label = ~paste(DISTRITO, "<br>", "Porcentaje de necesidad alimentaria no cubierta:", round(porcentaje_necesidad, 1), "%"),
+    popup = ~paste(DISTRITO, "<br>", "Porcentaje de necesidad alimentaria no cubierta:", round(porcentaje_necesidad, 1), "%")
+  ) %>%
+  addLegend(pal = colorNumeric("YlGnBu", NULL), values = ~porcentaje_necesidad, opacity = 0.7, title = "Necesidad Alimentaria No Cubierta")
+```
+
+### Ingresos por alcabala
+
+```{r}
+# Analizando otras variables como los ingresos por alcabala
+ingresos_alcabala <- data_lima %>%
+  group_by(DISTRITO) %>%
+  summarise(
+    total_respuestas = n(),
+    ingresos = sum(C96_1_1_2, na.rm = TRUE),
+    ingresos_promedio = mean(C96_1_1_2, na.rm = TRUE)
+  )
+
+# Visualización de ingresos por alcabala en un gráfico de barras
+ggplot(ingresos_alcabala, aes(x = reorder(DISTRITO, ingresos_promedio), y = ingresos_promedio)) +
+  geom_bar(stat = "identity", fill = "steelblue") +
+  coord_flip() +
+  labs(title = "Ingresos promedio por alcabala por distrito",
+       x = "Distrito", y = "Ingresos Promedio (en soles)") +
+  theme_minimal()
+```
+
+### Factores laborales y sociales
+
+```{r}
+# Analizando las variables de empleados bajo CAS
+empleados_cas <- data_lima %>%
+  group_by(DISTRITO) %>%
+  summarise(
+    total_respuestas = n(),
+    mujeres_empleadas = sum(P19_4_VM, na.rm = TRUE),
+    hombres_empleados = sum(P19_4_VH, na.rm = TRUE),
+    total_empleados = mujeres_empleadas + hombres_empleados
+  ) %>%
+  # Ordenando los distritos por el total de empleados
+  mutate(DISTRITO = reorder(DISTRITO, total_empleados))
+
+# Visualización de empleados bajo CAS
+ggplot(empleados_cas, aes(x = DISTRITO, y = total_empleados, fill = DISTRITO)) +
+  geom_bar(stat = "identity", show.legend = FALSE) +  # Quitar leyenda para claridad
+  coord_flip() +  # Gráfico horizontal
+  scale_fill_viridis_d() +  # Usando una paleta de colores distinguible
+  labs(
+    title = "Número total de empleados bajo CAS por distrito",
+    x = "Distrito",
+    y = "Número total de empleados bajo CAS",
+    subtitle = "Distribución de empleados mujeres y hombres por distrito en Lima"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(size = 10),  # Mejor legibilidad en el eje X
+    axis.text.y = element_text(size = 10),  # Mejor legibilidad en el eje Y
+    plot.title = element_text(size = 14, face = "bold"),  # Título destacado
+    plot.subtitle = element_text(size = 12, face = "italic")  # Subtítulo en cursiva
+  )
+
+```
+
+
+
+
+
+
+### Desempeño de modelos
+
+#### Column {width="50%"}
+
+::: {.valuebox color="white"}
+```{r tabla-desemeno, echo=FALSE}
+library(gt)
+
+# Datos actualizados
+modelos <- tibble::tribble(
+  ~Index, ~Overall_Accuracy, ~Roc_Auc, ~Global_F1_Score,
+  "O. Logistic Regression", 0.571, 0.548, 0.534,
+  "S. Logistic Regression", 0.536, 0.558, 0.534,
+  "ST. Logistic Regression", 0.537, 0.558, 0.534,
+  "NRS. Logistic Regression", 0.519, 0.552, 0.519,
+  "O. Logistic Lasso", 0.568, 0.547, 0.446,
+  "S. Logistic Lasso", 0.519, 0.559, 0.519,
+  "ST. Logistic Lasso", 0.519, 0.559, 0.518,
+  "NRS. Logistic Lasso", 0.512, 0.550, 0.511,
+  "O. Logistic Ridge", 0.568, 0.547, 0.446,
+  "S. Logistic Ridge", 0.519, 0.559, 0.519,
+  "ST. Logistic Ridge", 0.519, 0.559, 0.518,
+  "NRS. Logistic Ridge", 0.512, 0.550, 0.511,
+  "O. Logistic Elastic Net", 0.568, 0.547, 0.446,
+  "S. Logistic Elastic Net", 0.519, 0.559, 0.519,
+  "ST. Logistic Elastic Net", 0.519, 0.559, 0.518,
+  "NRS. Logistic Elastic Net", 0.512, 0.550, 0.511,
+  "O. Random Forest", 0.811, 0.892, 0.799,
+  "S. Random Forest", 0.818, 0.890, 0.808,
+  "ST. Random Forest", 0.815, 0.889, 0.805,
+  "NRS. Random Forest", 0.816, 0.892, 0.806,
+  "O. Boosted Trees", 0.819, 0.900, 0.808,
+  "S. Boosted Trees", 0.812, 0.895, 0.805,
+  "ST. Boosted Trees", 0.816, 0.896, 0.808,
+  "NRS. Boosted Trees", 0.818, 0.895, 0.813
+)
+
+# Crear tabla interactiva
+modelos %>%
+  gt() %>%
+  tab_header(
+    title = "Desempeño de modelos",
+    subtitle = "Comparación de métricas clave entre diferentes modelos"
+  ) %>%
+  fmt_number(
+    columns = c(Overall_Accuracy, Roc_Auc, Global_F1_Score),
+    decimals = 3
+  ) %>%
+  cols_label(
+    Index = "Modelo",
+    Overall_Accuracy = "Exactitud global",
+    Roc_Auc = "Área bajo la curva ROC",
+    Global_F1_Score = "F1 score global"
+  ) %>%
+  tab_options(
+    table.font.size = "small",
+    heading.align = "center",
+    table.border.top.width = px(2),
+    table.border.top.color = "black",
+    table.border.bottom.width = px(2),
+    table.border.bottom.color = "black"
+  )
+
+```
+:::
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Conclusiones preliminares
+
+## Column {.tabset}
+
+### Modelos predictivos efectivos
+
+#### Column {width="30%"}
+
+::: {.valuebox style="background-color: #ffffff; color: #000000; border-left: 4px solid #4caf50; padding: 1em; margin-bottom: 1em;"}
+#### Modelos predictivos efectivos
+
+Los modelos basados en **árboles de decisión**, en particular los **boosted trees**, destacan como los más precisos para predecir el estado laboral de refugiados y migrantes venezolanos en el Perú.  
+
+Esto refleja la robustez de estos algoritmos al capturar patrones complejos y no lineales en los datos, adaptándose eficazmente a la diversidad de características individuales y contextuales.
+:::
+
+
+
+### Recomendaciones prácticas
+
+#### Column {width="35%"}
+
+::: {.valuebox style="background-color: #f5f5f5; color: #004d61; border-left: 4px solid #009688; padding: 1em; margin-bottom: 1em;"}
+#### Recomendaciones prácticas
+
+Las conclusiones resaltan la necesidad de una aproximación integral para diseñar políticas públicas focalizadas que combinen los factores individuales y municipales identificados.  
+
+Implementar programas que integren estos factores podría mejorar significativamente la inclusión económica y social de los refugiados y migrantes venezolanos.
+:::
+
+
+### Fuente de datos
+
+#### Column {width="100%"}
+
+::: {.valuebox style="background-color: #f5f5f5; color: #004d61; padding: 1.5em; border-left: 4px solid #3f51b5; font-size: 1.1em;"}
+#### Fuentes de datos
+
+Los datos utilizados para este análisis se basan en diversas fuentes relevantes y confiables. Las referencias en formato **APA 7** son las siguientes:
+
+1. **Instituto Nacional de Estadística e Informática (INEI).** (2023). *Encuesta Nacional de Programas de Educación y Evaluación del Perú (ENPOVE)*. Recuperado de [https://www.inei.gob.pe](https://www.inei.gob.pe).
+
+2. **Registro Nacional de Municipalidades (RENAMU).** (2023). *Reporte de capacidades municipales en el Perú*. Recuperado de [https://www.renamu.gob.pe](https://www.renamu.gob.pe).
+
+3. **Ministerio de Economía y Finanzas (MEF).** (2023). *Sistema Integrado de Administración Financiera (SIAF)*. Recuperado de [https://www.siaf.mef.gob.pe](https://www.siaf.mef.gob.pe).
+
+4. **ACNUR.** (2023). *Migrantes y refugiados venezolanos: Barreras legales y sociales*. Recuperado de [https://www.acnur.org](https://www.acnur.org).
+
+5. **Távarez, R., & Alcázar, R.** (2023). *Obstáculos para la validación de títulos profesionales en migrantes venezolanos*. Publicado en la Revista de Estudios Sociales, 35(2), 102–115.
+:::

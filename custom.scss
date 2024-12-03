@@ -1,0 +1,45 @@
+/*-- scss:defaults --*/
+
+$navbar-bg:    black !default;
+$navbar-fg: white !default;
+
+.navbar-container {
+    height: 75px
+}
+
+.bslib-card .card-body p {
+    font-size: 0.9rem;
+    align-content: center;
+}
+
+.bslib-card .bslib-value-box .value-box-title {
+    font-size: 1.8rem;
+}
+
+
+.bslib-value-box .value-box-area {
+    padding-top: 0rem;
+    padding-bottom: 0rem;
+}
+
+/* Ajustar el tamaño del texto para todo el dashboard */
+body {
+    font-size: 1.5em; /* Aumenta el tamaño general del texto */
+    line-height: 1.8; /* Mejora el espaciado entre líneas */
+  }
+  
+  .valuebox {
+    font-size: 1.8em; /* Aumenta el tamaño del texto dentro de las cajas */
+    margin-bottom: 1.5em; /* Espaciado entre cajas */
+    padding: 1em; /* Mejora el espacio interno */
+  }
+  
+  h1, h2, h3, h4 {
+    font-size: 2em; /* Aumenta el tamaño de los encabezados */
+    margin-bottom: 1em;
+  }
+  
+  .tabset > .tabset-content {
+    margin-top: 1.5em; /* Espaciado adicional entre pestañas */
+  }
+  
