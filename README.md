@@ -1,4 +1,6 @@
-# Factores asociados al estado de actividad laboral en refugiados y migrantes venezolanos en el Perú: un enfoque predictivo utilizando Machine Learning
+# [Factores asociados al estado de actividad laboral en refugiados y migrantes venezolanos en el Perú: un enfoque predictivo utilizando Machine Learning](https://luccemhu.github.io/TG-1INT46-PUCP/)
+
+Enlace a GitHub Pages: https://luccemhu.github.io/TG-1INT46-PUCP/
 
 ## Descripción
 
